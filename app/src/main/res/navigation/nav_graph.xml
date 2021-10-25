@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/audioListFragment"
+
+    >
+    <fragment
+        android:id="@+id/audioListFragment"
+        android:name="com.fatalzero.rsshool2021_android_task6_music_app.ui.AudioListFragment"
+        android:label="fragment_audio_list"
+        tools:layout="@layout/fragment_audio_list" >
+        <action
+            android:id="@+id/action_audioListFragment_to_trackInfoFragment"
+            app:destination="@id/trackInfoFragment"
+
+
+            app:popUpToInclusive="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/trackInfoFragment"
+        android:name="com.fatalzero.rsshool2021_android_task6_music_app.ui.TrackInfoFragment"
+        android:label="TrackInfoFragment" />
+</navigation>
