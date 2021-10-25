@@ -8,11 +8,16 @@ import android.os.IBinder
 import android.os.RemoteException
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import com.fatalzero.rsshool2021_android_task6_music_app.AudioService
 
 class TrackInfoViewModel :ViewModel() {
+
+    var bitmapView: ImageView? = null
+    var titleTextView: TextView? = null
      var mediaServiceBinder: AudioService.MediaServiceBinder? = null
      var activity: FragmentActivity? = null
      var mediaController: MediaControllerCompat? = null
@@ -89,8 +94,7 @@ fun init(){
     }
 
     fun playFromPosition(position: Int){
-        //  val description = trackInfoViewModel.mediaController?.metadata?.description
-        //   bitmapView?.setImageBitmap(description?.iconBitmap)
+
         mediaController?.transportControls?.playFromMediaId(position.toString(),null)
     }
 
@@ -115,8 +119,8 @@ fun init(){
      fun callbackNext() {
         val description = mediaController?.metadata?.description ?: return
 
-    //    bitmapView?.setImageBitmap(description.iconBitmap)
-      //  titleTextView?.text = description.title
+       bitmapView?.setImageBitmap(description.iconBitmap)
+        titleTextView?.text = description.title
       //  buttonChangeColor(TrackInfoFragment.BUTTON_NEXT)
     }
 
@@ -133,18 +137,17 @@ fun init(){
     }
 
      fun callbackPlay() {
-        val description = mediaController?.metadata?.description ?: return
-        //outputTextView.append("track ${description.title} is playing...\n")
-       // bitmapView?.setImageBitmap(description.iconBitmap)
-       // titleTextView?.text = description.title
-       // buttonChangeColor(TrackInfoFragment.BUTTON_PLAY)
+         val description = mediaController?.metadata?.description ?: return
+         bitmapView?.setImageBitmap(description.iconBitmap)
+        titleTextView?.text = description.title
+
     }
 
      fun callbackPrev() {
         val description = mediaController?.metadata?.description ?: return
 
-      //  bitmapView?.setImageBitmap(description.iconBitmap)
-      //  titleTextView?.text = description.title
+        bitmapView?.setImageBitmap(description.iconBitmap)
+        titleTextView?.text = description.title
       //  buttonChangeColor(TrackInfoFragment.BUTTON_PREVIOUS)
     }
 

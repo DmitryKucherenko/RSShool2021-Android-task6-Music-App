@@ -29,6 +29,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
+import com.bumptech.glide.Glide
 import com.fatalzero.rsshool2021_android_task6_music_app.model.Track
 import com.fatalzero.rsshool2021_android_task6_music_app.ui.MainActivity
 import com.google.android.exoplayer2.DefaultLoadControl
@@ -55,6 +56,10 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource
 import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor
 import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.google.android.exoplayer2.util.Clock
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.job
+import kotlinx.coroutines.launch
 import java.io.File
 
 class AudioService: MediaBrowserServiceCompat() {
@@ -480,6 +485,9 @@ class AudioService: MediaBrowserServiceCompat() {
             with(metadataBuilder) {
                 putBitmap(
                     MediaMetadataCompat.METADATA_KEY_ART,
+
+
+
                     audioList.bitmaps[track.bitmapUri]
                 )
                 putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.title)

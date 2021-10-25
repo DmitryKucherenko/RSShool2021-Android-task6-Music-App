@@ -33,22 +33,18 @@ class TrackInfoFragment : Fragment() {
     var stopButton: ImageButton? = null
     var prevButton: ImageButton? = null
     var nextButton: ImageButton? = null
-    var bitmapView: ImageView? = null
-    var titleTextView: TextView? = null
+//    var bitmapView: ImageView? = null
+//    var titleTextView: TextView? = null
     var artistTextView: TextView? = null
     var albumTextView: TextView? = null
     private val trackInfoViewModel: TrackInfoViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        trackInfoViewModel.id = arguments?.getInt("id")?:0
         trackInfoViewModel.activity = activity
         trackInfoViewModel.init()
-        trackInfoViewModel.id = arguments?.getInt("id")?:0
-if(trackInfoViewModel.mediaServiceBinder!=null) {
-   // stopPlaying()
-    trackInfoViewModel.playFromPosition(trackInfoViewModel.id!!)
-    println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-}
 
 
 
@@ -62,18 +58,24 @@ if(trackInfoViewModel.mediaServiceBinder!=null) {
         stopButton=binding.stopButton
         prevButton=binding.previousButton
         nextButton=binding.nextButton
-        bitmapView=binding.BitmapView
+        trackInfoViewModel.bitmapView=binding.BitmapView
         albumTextView=binding.ArtrtistTextView
-        titleTextView=binding.TitleTextView
+        trackInfoViewModel.titleTextView=binding.TitleTextView
         artistTextView=binding.AlbumTextView
+
+
+        if(trackInfoViewModel.mediaServiceBinder!=null) {
+            // stopPlaying()
+            trackInfoViewModel.playFromPosition(trackInfoViewModel.id!!)
+            println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        }
 
 
 
         prevButton?.setOnClickListener {
             trackInfoViewModel.previousTrack()
             val description = trackInfoViewModel.mediaController?.metadata?.description
-            bitmapView?.setImageBitmap(description?.iconBitmap)
-            titleTextView?.text = description?.title
+
             buttonChangeColor(TrackInfoFragment.BUTTON_NEXT)
 
         }
@@ -81,13 +83,10 @@ if(trackInfoViewModel.mediaServiceBinder!=null) {
         stopButton?.setOnClickListener { trackInfoViewModel.stopPlaying() }
         pauseButton?.setOnClickListener { trackInfoViewModel.pausePlaying() }
         nextButton?.setOnClickListener { trackInfoViewModel.nextTrack()
-            val description = trackInfoViewModel.mediaController?.metadata?.description
-             bitmapView?.setImageBitmap(description?.iconBitmap)
-             titleTextView?.text = description?.title
              buttonChangeColor(TrackInfoFragment.BUTTON_NEXT)
         }
-        val description = trackInfoViewModel.mediaController?.metadata?.description
-        bitmapView?.setImageBitmap(description?.iconBitmap)
+        //val description = trackInfoViewModel.mediaController?.metadata?.description
+
     }
 
     override fun onCreateView(
