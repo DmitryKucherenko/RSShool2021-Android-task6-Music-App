@@ -29,9 +29,6 @@ fun init(){
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             state?.let {
                 val playing = it.state == PlaybackStateCompat.STATE_PLAYING
-               // playButton?.isEnabled = !playing
-             //   pauseButton?.isEnabled = playing
-             //   stopButton?.isEnabled = playing
 
                 when (it.state) {
                     PlaybackStateCompat.STATE_PLAYING -> callbackPlay()
@@ -57,7 +54,6 @@ fun init(){
                     )
                     mediaController?.registerCallback(callback as MediaControllerCompat.Callback)
                     callback?.onPlaybackStateChanged(mediaController?.playbackState)
-                    // mediaController?.transportControls?.play()
                     id?.let { playFromPosition(it) }
 
                 } catch (e: RemoteException) {
@@ -74,19 +70,13 @@ fun init(){
             }
         }
         val playerIntent = Intent(activity, AudioService::class.java)
-
         activity?.bindService(
             playerIntent,
             serviceConnection!!,
             Context.BIND_AUTO_CREATE
         )
-
-
     }
-
-
 }
-
 
 
      fun nextTrack() {
@@ -94,13 +84,11 @@ fun init(){
     }
 
     fun playFromPosition(position: Int){
-
         mediaController?.transportControls?.playFromMediaId(position.toString(),null)
     }
 
      fun pausePlaying() {
         mediaController?.transportControls?.pause()
-
     }
 
      fun stopPlaying() {
@@ -141,19 +129,15 @@ fun init(){
          val description = mediaController?.metadata?.description ?: return
          bitmapView?.setImageBitmap(description.iconBitmap)
         titleTextView?.text = description.title
-
     }
 
      fun callbackPrev() {
         val description = mediaController?.metadata?.description ?: return
-
         bitmapView?.setImageBitmap(description.iconBitmap)
         titleTextView?.text = description.title
-
     }
 
      fun callbackUnknown() {
-
     }
 
 }

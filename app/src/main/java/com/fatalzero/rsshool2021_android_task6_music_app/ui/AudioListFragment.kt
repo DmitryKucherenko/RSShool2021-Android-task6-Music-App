@@ -9,10 +9,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.fatalzero.rsshool2021_android_task6_music_app.AudioList
+import com.fatalzero.rsshool2021_android_task6_music_app.MyApplication
 import com.fatalzero.rsshool2021_android_task6_music_app.R
 import com.fatalzero.rsshool2021_android_task6_music_app.adapter.ItemClickListener
 import com.fatalzero.rsshool2021_android_task6_music_app.adapter.TrackAdapter
 import com.fatalzero.rsshool2021_android_task6_music_app.databinding.FragmentAudioListBinding
+import javax.inject.Inject
 
 
 class AudioListFragment : Fragment() {
@@ -21,17 +23,21 @@ class AudioListFragment : Fragment() {
     private lateinit var audioRecyclerView: RecyclerView
     private var adapter: TrackAdapter? = null
     private var itemClickListener: ItemClickListener? = null
+    @Inject set
+    var audioList:AudioList? = null
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         itemClickListener = context as ItemClickListener
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        }
-
+        (activity?.application as MyApplication).appComponent?.inject(this)
+        audioList?.getTrackCatalog()?.forEach { println(it) }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,7 +49,7 @@ class AudioListFragment : Fragment() {
         audioRecyclerView.layoutManager = LinearLayoutManager(context)
         adapter = TrackAdapter(itemClickListener)
         audioRecyclerView.adapter = adapter
-        adapter?.submitList(AudioList(requireContext()).getTrackCatalog())
+        adapter?.submitList(audioList?.getTrackCatalog())
          return view
     }
 

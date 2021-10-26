@@ -25,6 +25,5 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
             R.id.action_audioListFragment_to_trackInfoFragment,
             bundleOf(ID to id)
         )
-          //  navController?.popBackStack()
     }
 }

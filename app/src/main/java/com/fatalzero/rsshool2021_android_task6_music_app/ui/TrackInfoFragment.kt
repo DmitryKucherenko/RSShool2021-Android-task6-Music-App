@@ -31,8 +31,7 @@ class TrackInfoFragment : Fragment() {
    var id:Int? = null
     private var _binding: FragmentTrackInfoBinding? = null
     private val binding get() = _binding!!
-    private var audioList:List<Track>? =null
-    var callback: MediaControllerCompat.Callback? = null
+
     var playButton: ImageButton? = null
     var pauseButton: ImageButton? = null
     var stopButton: ImageButton? = null
@@ -48,9 +47,6 @@ class TrackInfoFragment : Fragment() {
         trackInfoViewModel.id = arguments?.getInt("id")?:0
         trackInfoViewModel.activity = activity
         trackInfoViewModel.init()
-        AudioList(requireContext())?.getTrackCatalog()
-
-
 
 
     }
@@ -91,11 +87,7 @@ class TrackInfoFragment : Fragment() {
         }
 
 
-        Glide.with(requireActivity())
-            .load(trackInfoViewModel.mediaController?.metadata?.description?.iconUri)
-            .placeholder(R.drawable.ic_music)
-            .optionalTransform(CenterCrop())
-            .into(trackInfoViewModel.bitmapView!!)
+
     }
 
     override fun onCreateView(
@@ -123,21 +115,7 @@ class TrackInfoFragment : Fragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-   /*   mediaServiceBinder = null
-        if (mediaController != null) {
-            mediaController?.unregisterCallback(callback as MediaControllerCompat.Callback)
-            mediaController = null
-        }
-        activity?.unbindService(serviceConnection!!)
-*/
-    }
 
 
 

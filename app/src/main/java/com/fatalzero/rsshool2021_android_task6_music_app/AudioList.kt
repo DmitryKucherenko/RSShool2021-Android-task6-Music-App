@@ -13,10 +13,10 @@ import kotlinx.coroutines.launch
 import java.lang.reflect.Type
 
 class AudioList(
-    var context: Context,
+    var context: Context
+) {
     var jsonFile: String = context.resources.openRawResource(R.raw.playlist).bufferedReader()
         .use { it.readText() }
-) {
     private var _listTrack: List<Track>? = null
     private val listTrack: List<Track> get() = requireNotNull(_listTrack)
     val bitmaps = HashMap<String, Bitmap>(5)
