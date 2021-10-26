@@ -485,14 +485,12 @@ class AudioService: MediaBrowserServiceCompat() {
             with(metadataBuilder) {
                 putBitmap(
                     MediaMetadataCompat.METADATA_KEY_ART,
-
-
-
                     audioList.bitmaps[track.bitmapUri]
                 )
                 putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.title)
                 putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.artist)
                 putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)
+                putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, track.bitmapUri)
                 putLong(MediaMetadataCompat.METADATA_KEY_DURATION, track.duration!!)
             }
             mediaSession?.setMetadata(metadataBuilder.build())

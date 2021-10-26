@@ -18,23 +18,26 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.fatalzero.rsshool2021_android_task6_music_app.AudioList
 import com.fatalzero.rsshool2021_android_task6_music_app.AudioService
 import com.fatalzero.rsshool2021_android_task6_music_app.R
 import com.fatalzero.rsshool2021_android_task6_music_app.databinding.FragmentTrackInfoBinding
+import com.fatalzero.rsshool2021_android_task6_music_app.model.Track
 
 private const val ID = "id"
 class TrackInfoFragment : Fragment() {
    var id:Int? = null
     private var _binding: FragmentTrackInfoBinding? = null
     private val binding get() = _binding!!
+    private var audioList:List<Track>? =null
     var callback: MediaControllerCompat.Callback? = null
     var playButton: ImageButton? = null
     var pauseButton: ImageButton? = null
     var stopButton: ImageButton? = null
     var prevButton: ImageButton? = null
     var nextButton: ImageButton? = null
-//    var bitmapView: ImageView? = null
-//    var titleTextView: TextView? = null
     var artistTextView: TextView? = null
     var albumTextView: TextView? = null
     private val trackInfoViewModel: TrackInfoViewModel by activityViewModels()
@@ -45,6 +48,7 @@ class TrackInfoFragment : Fragment() {
         trackInfoViewModel.id = arguments?.getInt("id")?:0
         trackInfoViewModel.activity = activity
         trackInfoViewModel.init()
+        AudioList(requireContext())?.getTrackCatalog()
 
 
 
@@ -65,28 +69,33 @@ class TrackInfoFragment : Fragment() {
 
 
         if(trackInfoViewModel.mediaServiceBinder!=null) {
-            // stopPlaying()
             trackInfoViewModel.playFromPosition(trackInfoViewModel.id!!)
-            println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         }
 
 
 
-        prevButton?.setOnClickListener {
-            trackInfoViewModel.previousTrack()
-            val description = trackInfoViewModel.mediaController?.metadata?.description
-
-            buttonChangeColor(TrackInfoFragment.BUTTON_NEXT)
-
+        prevButton?.setOnClickListener { trackInfoViewModel.previousTrack()
+            buttonChangeColor(TrackInfoFragment.BUTTON_PREVIOUS)
         }
-        playButton?.setOnClickListener { trackInfoViewModel.playTrack() }
-        stopButton?.setOnClickListener { trackInfoViewModel.stopPlaying() }
-        pauseButton?.setOnClickListener { trackInfoViewModel.pausePlaying() }
+        playButton?.setOnClickListener { trackInfoViewModel.playTrack()
+            buttonChangeColor(TrackInfoFragment.BUTTON_PLAY)
+        }
+        stopButton?.setOnClickListener { trackInfoViewModel.stopPlaying()
+            buttonChangeColor(TrackInfoFragment.BUTTON_STOP)
+        }
+        pauseButton?.setOnClickListener { trackInfoViewModel.pausePlaying()
+            buttonChangeColor(TrackInfoFragment.BUTTON_PAUSE)
+        }
         nextButton?.setOnClickListener { trackInfoViewModel.nextTrack()
              buttonChangeColor(TrackInfoFragment.BUTTON_NEXT)
         }
-        //val description = trackInfoViewModel.mediaController?.metadata?.description
 
+
+        Glide.with(requireActivity())
+            .load(trackInfoViewModel.mediaController?.metadata?.description?.iconUri)
+            .placeholder(R.drawable.ic_music)
+            .optionalTransform(CenterCrop())
+            .into(trackInfoViewModel.bitmapView!!)
     }
 
     override fun onCreateView(
@@ -94,7 +103,6 @@ class TrackInfoFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentTrackInfoBinding.inflate(inflater, container, false)
-
         return binding.root
     }
 
@@ -117,9 +125,6 @@ class TrackInfoFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-
-        println("GET POSITION ${arguments?.getInt("position")}")
-
     }
 
     override fun onDestroy() {

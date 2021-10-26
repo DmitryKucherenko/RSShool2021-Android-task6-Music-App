@@ -121,19 +121,20 @@ fun init(){
 
        bitmapView?.setImageBitmap(description.iconBitmap)
         titleTextView?.text = description.title
-      //  buttonChangeColor(TrackInfoFragment.BUTTON_NEXT)
     }
 
      fun callbackPause() {
-        val description = mediaController?.metadata?.description ?: return
+         val description = mediaController?.metadata?.description ?: return
 
-     //   buttonChangeColor(TrackInfoFragment.BUTTON_PAUSE)
+         bitmapView?.setImageBitmap(description.iconBitmap)
+         titleTextView?.text = description.title
+
     }
 
      fun callbackStop() {
-        val description = mediaController?.metadata?.description ?: return
-        //outputTextView.append("track ${description.title} was stopped...\n")
-  //     buttonChangeColor(TrackInfoFragment.BUTTON_STOP)
+         val description = mediaController?.metadata?.description ?: return
+         bitmapView?.setImageBitmap(description.iconBitmap)
+         titleTextView?.text = description.title
     }
 
      fun callbackPlay() {
@@ -148,11 +149,11 @@ fun init(){
 
         bitmapView?.setImageBitmap(description.iconBitmap)
         titleTextView?.text = description.title
-      //  buttonChangeColor(TrackInfoFragment.BUTTON_PREVIOUS)
+
     }
 
      fun callbackUnknown() {
-        //  outputTextView.append("Unknown playback state change...\n")
+
     }
 
 }
