@@ -23,7 +23,11 @@ class TrackInfoViewModel :ViewModel() {
      var mediaController: MediaControllerCompat? = null
      var callback: MediaControllerCompat.Callback? = null
      var serviceConnection: ServiceConnection? = null
+
+    var artistTextView: TextView? = null
+    var albumTextView: TextView? = null
      var id: Int? = 0
+
 fun init(){
     callback = object : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
@@ -109,13 +113,14 @@ fun init(){
 
        bitmapView?.setImageBitmap(description.iconBitmap)
         titleTextView?.text = description.title
+         artistTextView?.text = description.subtitle
     }
 
      fun callbackPause() {
          val description = mediaController?.metadata?.description ?: return
-
          bitmapView?.setImageBitmap(description.iconBitmap)
          titleTextView?.text = description.title
+         artistTextView?.text = description.subtitle
 
     }
 
@@ -123,6 +128,7 @@ fun init(){
          val description = mediaController?.metadata?.description ?: return
          bitmapView?.setImageBitmap(description.iconBitmap)
          titleTextView?.text = description.title
+         artistTextView?.text = description.subtitle
     }
 
      fun callbackPlay() {
@@ -135,6 +141,7 @@ fun init(){
         val description = mediaController?.metadata?.description ?: return
         bitmapView?.setImageBitmap(description.iconBitmap)
         titleTextView?.text = description.title
+         artistTextView?.text = description.subtitle
     }
 
      fun callbackUnknown() {

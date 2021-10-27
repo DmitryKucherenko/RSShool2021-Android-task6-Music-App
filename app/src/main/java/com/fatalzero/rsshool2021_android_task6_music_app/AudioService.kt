@@ -61,6 +61,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import java.io.File
+import javax.inject.Inject
 
 class AudioService: MediaBrowserServiceCompat() {
 
@@ -77,8 +78,10 @@ class AudioService: MediaBrowserServiceCompat() {
     )
 
     private val metadataBuilder = MediaMetadataCompat.Builder()
-    private var _audioList: AudioList? = null
-    private val audioList: AudioList by lazy { getSingleAudioList() }
+
+    @Inject
+    lateinit var  audioList: AudioList
+
     private var id: Int = 0
 
     fun setPosition(position: Int){
@@ -86,15 +89,6 @@ class AudioService: MediaBrowserServiceCompat() {
     }
 
 
-    private fun getSingleAudioList(): AudioList {
-        return if (_audioList == null) {
-            val catalog = AudioList(this.applicationContext)
-            _audioList = catalog
-            audioList
-        } else {
-            requireNotNull(_audioList)
-        }
-    }
 
 
     private var mediaSession: MediaSessionCompat? = null
@@ -111,7 +105,7 @@ class AudioService: MediaBrowserServiceCompat() {
     @SuppressLint("WrongConstant")
     override fun onCreate() {
         super.onCreate()
-
+        (application as MyApplication).appComponent.inject(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,

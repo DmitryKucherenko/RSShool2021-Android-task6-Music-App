@@ -23,8 +23,8 @@ class AudioListFragment : Fragment() {
     private lateinit var audioRecyclerView: RecyclerView
     private var adapter: TrackAdapter? = null
     private var itemClickListener: ItemClickListener? = null
-    @Inject set
-    var audioList:AudioList? = null
+    @Inject
+    lateinit var  audioList:AudioList
 
 
     override fun onAttach(context: Context) {
@@ -35,8 +35,8 @@ class AudioListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (activity?.application as MyApplication).appComponent?.inject(this)
-        audioList?.getTrackCatalog()?.forEach { println(it) }
+        (activity?.application as MyApplication).appComponent.inject(this)
+        audioList.getTrackCatalog().forEach { println(it) }
     }
 
     override fun onCreateView(
@@ -49,7 +49,7 @@ class AudioListFragment : Fragment() {
         audioRecyclerView.layoutManager = LinearLayoutManager(context)
         adapter = TrackAdapter(itemClickListener)
         audioRecyclerView.adapter = adapter
-        adapter?.submitList(audioList?.getTrackCatalog())
+        adapter?.submitList(audioList.getTrackCatalog())
          return view
     }
 

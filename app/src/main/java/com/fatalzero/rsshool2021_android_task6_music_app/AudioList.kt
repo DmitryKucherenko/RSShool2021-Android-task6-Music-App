@@ -11,15 +11,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.lang.reflect.Type
+import javax.inject.Inject
 
-class AudioList(
+class AudioList @Inject constructor(
     var context: Context
 ) {
-    var jsonFile: String = context.resources.openRawResource(R.raw.playlist).bufferedReader()
-        .use { it.readText() }
+    private var jsonFile: String =
+        context.resources.openRawResource(R.raw.playlist).bufferedReader().use { it.readText() }
     private var _listTrack: List<Track>? = null
     private val listTrack: List<Track> get() = requireNotNull(_listTrack)
     val bitmaps = HashMap<String, Bitmap>(5)
+
     init {
         val moshi = Moshi.Builder().build()
         val listMyData: Type = Types.newParameterizedType(
@@ -33,11 +35,12 @@ class AudioList(
         GlobalScope.launch(Dispatchers.Default) {
             try {
                 _listTrack?.forEach {
-                    val bitmap = Glide.with(context).asBitmap().load(it.bitmapUri).into(200, 200).get()
+                    val bitmap =
+                        Glide.with(context).asBitmap().load(it.bitmapUri).into(200, 200).get()
                     bitmaps[it.bitmapUri] = bitmap
                 }
+            } catch (e: Exception) {
             }
-            catch (e: Exception) {}
         }
 
     }
@@ -69,6 +72,5 @@ class AudioList(
         return currentTrack
     }
 
-    fun getTrackByIndex(index: Int) = listTrack[index]
     fun getTrackCatalog() = listTrack
 }

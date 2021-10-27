@@ -37,8 +37,7 @@ class TrackInfoFragment : Fragment() {
     var stopButton: ImageButton? = null
     var prevButton: ImageButton? = null
     var nextButton: ImageButton? = null
-    var artistTextView: TextView? = null
-    var albumTextView: TextView? = null
+
     private val trackInfoViewModel: TrackInfoViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,9 +58,9 @@ class TrackInfoFragment : Fragment() {
         prevButton=binding.previousButton
         nextButton=binding.nextButton
         trackInfoViewModel.bitmapView=binding.BitmapView
-        albumTextView=binding.ArtrtistTextView
+        trackInfoViewModel.albumTextView=binding.ArtrtistTextView
         trackInfoViewModel.titleTextView=binding.TitleTextView
-        artistTextView=binding.AlbumTextView
+        trackInfoViewModel.artistTextView=binding.AlbumTextView
 
 
         if(trackInfoViewModel.mediaServiceBinder!=null) {
@@ -71,19 +70,19 @@ class TrackInfoFragment : Fragment() {
 
 
         prevButton?.setOnClickListener { trackInfoViewModel.previousTrack()
-            buttonChangeColor(TrackInfoFragment.BUTTON_PREVIOUS)
+            buttonChangeColor(BUTTON_PREVIOUS)
         }
         playButton?.setOnClickListener { trackInfoViewModel.playTrack()
-            buttonChangeColor(TrackInfoFragment.BUTTON_PLAY)
+            buttonChangeColor(BUTTON_PLAY)
         }
         stopButton?.setOnClickListener { trackInfoViewModel.stopPlaying()
-            buttonChangeColor(TrackInfoFragment.BUTTON_STOP)
+            buttonChangeColor(BUTTON_STOP)
         }
         pauseButton?.setOnClickListener { trackInfoViewModel.pausePlaying()
-            buttonChangeColor(TrackInfoFragment.BUTTON_PAUSE)
+            buttonChangeColor(BUTTON_PAUSE)
         }
         nextButton?.setOnClickListener { trackInfoViewModel.nextTrack()
-             buttonChangeColor(TrackInfoFragment.BUTTON_NEXT)
+             buttonChangeColor(BUTTON_NEXT)
         }
 
 
@@ -101,7 +100,7 @@ class TrackInfoFragment : Fragment() {
 
 
     fun buttonChangeColor(typeButton: Int) {
-        pauseButton?.setBackgroundResource(android.R.drawable.btn_default)
+       pauseButton?.setBackgroundResource(android.R.drawable.btn_default)
         playButton?.setBackgroundResource(android.R.drawable.btn_default)
         stopButton?.setBackgroundResource(android.R.drawable.btn_default)
         nextButton?.setBackgroundResource(android.R.drawable.btn_default)
