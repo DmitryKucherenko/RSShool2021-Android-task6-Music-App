@@ -1,16 +1,7 @@
 package com.fatalzero.rsshool2021_android_task6_music_app.ui
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.os.Bundle
-import android.os.IBinder
-import android.os.RemoteException
-import android.support.v4.media.session.MediaControllerCompat
-import android.support.v4.media.session.PlaybackStateCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,15 +10,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
-import com.fatalzero.rsshool2021_android_task6_music_app.AudioList
-import com.fatalzero.rsshool2021_android_task6_music_app.AudioService
-import com.fatalzero.rsshool2021_android_task6_music_app.R
 import com.fatalzero.rsshool2021_android_task6_music_app.databinding.FragmentTrackInfoBinding
-import com.fatalzero.rsshool2021_android_task6_music_app.model.Track
 
 private const val ID = "id"
 class TrackInfoFragment : Fragment() {

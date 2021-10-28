@@ -1,4 +1,4 @@
-package com.fatalzero.rsshool2021_android_task6_music_app
+package com.fatalzero.rsshool2021_android_task6_music_app.service
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -29,7 +29,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
-import com.bumptech.glide.Glide
+import com.fatalzero.rsshool2021_android_task6_music_app.repository.AudioList
+import com.fatalzero.rsshool2021_android_task6_music_app.MyApplication
+import com.fatalzero.rsshool2021_android_task6_music_app.R
 import com.fatalzero.rsshool2021_android_task6_music_app.model.Track
 import com.fatalzero.rsshool2021_android_task6_music_app.ui.MainActivity
 import com.google.android.exoplayer2.DefaultLoadControl
@@ -56,10 +58,6 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource
 import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor
 import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.google.android.exoplayer2.util.Clock
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.job
-import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 
@@ -106,6 +104,7 @@ class AudioService: MediaBrowserServiceCompat() {
     override fun onCreate() {
         super.onCreate()
         (application as MyApplication).appComponent.inject(this)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,

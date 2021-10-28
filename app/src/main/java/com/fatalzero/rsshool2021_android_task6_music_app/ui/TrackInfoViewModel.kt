@@ -7,15 +7,12 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.os.RemoteException
 import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.fatalzero.rsshool2021_android_task6_music_app.AudioService
+import com.fatalzero.rsshool2021_android_task6_music_app.service.AudioService
 
 class TrackInfoViewModel : ViewModel() {
 
@@ -47,7 +44,7 @@ class TrackInfoViewModel : ViewModel() {
                 }
             }
         }
-        if (mediaServiceBinder == null) {
+
             serviceConnection = object : ServiceConnection {
 
                 override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
@@ -81,7 +78,7 @@ class TrackInfoViewModel : ViewModel() {
                 serviceConnection!!,
                 Context.BIND_AUTO_CREATE
             )
-        }
+
     }
 
 

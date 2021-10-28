@@ -1,8 +1,9 @@
-package com.fatalzero.rsshool2021_android_task6_music_app
+package com.fatalzero.rsshool2021_android_task6_music_app.repository
 
 import android.content.Context
 import android.graphics.Bitmap
 import com.bumptech.glide.Glide
+import com.fatalzero.rsshool2021_android_task6_music_app.R
 import com.fatalzero.rsshool2021_android_task6_music_app.model.Track
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
