@@ -4,6 +4,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.os.IBinder
 import android.os.RemoteException
@@ -18,6 +20,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.fatalzero.rsshool2021_android_task6_music_app.AudioList
@@ -38,6 +41,11 @@ class TrackInfoFragment : Fragment() {
     var prevButton: ImageButton? = null
     var nextButton: ImageButton? = null
 
+    var artistTextView: TextView? = null
+    var albumTextView: TextView? = null
+    var bitmapView: ImageView? = null
+    var titleTextView: TextView? = null
+
     private val trackInfoViewModel: TrackInfoViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,10 +65,10 @@ class TrackInfoFragment : Fragment() {
         stopButton=binding.stopButton
         prevButton=binding.previousButton
         nextButton=binding.nextButton
-        trackInfoViewModel.bitmapView=binding.BitmapView
-        trackInfoViewModel.albumTextView=binding.ArtrtistTextView
-        trackInfoViewModel.titleTextView=binding.TitleTextView
-        trackInfoViewModel.artistTextView=binding.AlbumTextView
+        bitmapView=binding.BitmapView
+        artistTextView=binding.ArtrtistTextView
+        titleTextView=binding.TitleTextView
+
 
 
         if(trackInfoViewModel.mediaServiceBinder!=null) {
@@ -83,9 +91,17 @@ class TrackInfoFragment : Fragment() {
         }
         nextButton?.setOnClickListener { trackInfoViewModel.nextTrack()
              buttonChangeColor(BUTTON_NEXT)
+
         }
 
-
+        trackInfoViewModel.mediaLiveData.observe(viewLifecycleOwner,
+            { trackInfo ->
+                trackInfo?.let {
+                    bitmapView?.setImageBitmap(it.iconBitmap)
+                    titleTextView?.text = it.title
+                    artistTextView?.text = it.subtitle
+                }
+            })
 
     }
 
@@ -106,11 +122,11 @@ class TrackInfoFragment : Fragment() {
         nextButton?.setBackgroundResource(android.R.drawable.btn_default)
         prevButton?.setBackgroundResource(android.R.drawable.btn_default)
         when (typeButton) {
-            BUTTON_PLAY -> playButton?.setBackgroundResource(R.color.colorButtonClick)
-            BUTTON_PAUSE -> pauseButton?.setBackgroundResource(R.color.colorButtonClick)
-            BUTTON_STOP -> stopButton?.setBackgroundResource(R.color.colorButtonClick)
-            BUTTON_NEXT -> nextButton?.setBackgroundResource(R.color.colorButtonClick)
-            BUTTON_PREVIOUS -> prevButton?.setBackgroundResource(R.color.colorButtonClick)
+            BUTTON_PLAY -> playButton?.setBackgroundColor(Color.GREEN)
+            BUTTON_PAUSE -> pauseButton?.setBackgroundColor(Color.GREEN)
+            BUTTON_STOP -> stopButton?.setBackgroundColor(Color.GREEN)
+            BUTTON_NEXT -> nextButton?.setBackgroundColor(Color.GREEN)
+            BUTTON_PREVIOUS -> prevButton?.setBackgroundColor(Color.GREEN)
         }
     }
 
