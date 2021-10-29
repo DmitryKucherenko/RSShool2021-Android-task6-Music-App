@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.fatalzero.rsshool2021_android_task6_music_app.repository.AudioList
@@ -22,9 +24,9 @@ class AudioListFragment : Fragment() {
     private lateinit var audioRecyclerView: RecyclerView
     private var adapter: TrackAdapter? = null
     private var itemClickListener: ItemClickListener? = null
-
-    @Inject
-    lateinit var audioList: AudioList
+    private val audioListViewModel: AudioListViewModel by viewModels {
+        AudioListViewModel.AudioListViewModelFactory(activity?.application!!)
+    }
 
 
     override fun onAttach(context: Context) {
@@ -48,7 +50,16 @@ class AudioListFragment : Fragment() {
         audioRecyclerView.layoutManager = LinearLayoutManager(context)
         adapter = TrackAdapter(itemClickListener)
         audioRecyclerView.adapter = adapter
-        adapter?.submitList(audioList.getTrackCatalog())
+
+
+
+        audioListViewModel.audioListLiveData.observe(viewLifecycleOwner,
+            { list ->
+                list?.let {
+                    adapter?.submitList(it)
+                }
+            })
+
         return view
     }
 
