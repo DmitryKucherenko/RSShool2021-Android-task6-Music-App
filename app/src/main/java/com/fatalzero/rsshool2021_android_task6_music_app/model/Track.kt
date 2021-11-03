@@ -8,7 +8,7 @@ typealias trackList = List<Track>
 
 @JsonClass(generateAdapter = true)
 data class Track(
-    var id:Int?,
+    var id: Int?,
     val title: String?,
     val artist: String?,
     val album: String?,

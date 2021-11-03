@@ -13,11 +13,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class TrackHolder (
+class TrackHolder(
     private val itemClickListener: ItemClickListener?,
     binding: TrackItemBinding,
     private val context: Context
-
 ) : RecyclerView.ViewHolder(binding.root) {
     private var track: Track? = null
     private val artist: TextView = binding.ArtrtistTextView
@@ -26,7 +25,7 @@ class TrackHolder (
     private val bitmapView: ImageView = binding.BitmapView
 
 
-    fun bind(track: Track,position: Int) {
+    fun bind(track: Track, position: Int) {
         this.track = track
         track.id = position
         artist.text = track.artist
@@ -35,19 +34,18 @@ class TrackHolder (
         println(track.bitmapUri)
         val id = requireNotNull(track.id)
 
-            try {
-                Glide.with(context)
-                    .load(track.bitmapUri)
-                    .placeholder(R.drawable.ic_music)
-                    .optionalTransform(CenterCrop())
-                    .into(bitmapView)
+        try {
+            Glide.with(context)
+                .load(track.bitmapUri)
+                .placeholder(R.drawable.ic_music)
+                .optionalTransform(CenterCrop())
+                .into(bitmapView)
 
-                itemView.setOnClickListener {
-                    itemClickListener?.onItemClick(id)
-                }
-
-            } catch (e: Exception) {
+            itemView.setOnClickListener {
+                itemClickListener?.onItemClick(id)
             }
+        } catch (e: Exception) {
+        }
 
 
     }

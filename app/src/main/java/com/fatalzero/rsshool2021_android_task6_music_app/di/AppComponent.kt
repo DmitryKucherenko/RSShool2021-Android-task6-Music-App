@@ -16,7 +16,6 @@ interface AppComponent {
         fun create(@BindsInstance context: Context): AppComponent
     }
 
-
     fun inject(fragment: AudioListFragment)
     fun inject(service: AudioService)
     fun inject(audioListViewModel: AudioListViewModel)

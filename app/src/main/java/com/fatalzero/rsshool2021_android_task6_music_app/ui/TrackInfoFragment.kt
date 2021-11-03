@@ -9,73 +9,72 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.observe
+import androidx.fragment.app.viewModels
 import com.fatalzero.rsshool2021_android_task6_music_app.databinding.FragmentTrackInfoBinding
 
 private const val ID = "id"
+
 class TrackInfoFragment : Fragment() {
-   var id:Int? = null
     private var _binding: FragmentTrackInfoBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = requireNotNull(_binding)
 
     var playButton: ImageButton? = null
     var pauseButton: ImageButton? = null
     var stopButton: ImageButton? = null
     var prevButton: ImageButton? = null
     var nextButton: ImageButton? = null
-
     var artistTextView: TextView? = null
-    var albumTextView: TextView? = null
     var bitmapView: ImageView? = null
     var titleTextView: TextView? = null
 
-    private val trackInfoViewModel: TrackInfoViewModel by activityViewModels()
+    private val trackInfoViewModel: TrackInfoViewModel by viewModels {
+        TrackInfoViewModel.TrackInfoViewModelFactory(requireActivity().application)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        trackInfoViewModel.id = arguments?.getInt("id")?:0
-        trackInfoViewModel.activity = activity
-        trackInfoViewModel.init()
-
-
+        trackInfoViewModel.id = arguments?.getInt(ID) ?: 0
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        playButton= binding.playButton
-        pauseButton=binding.pauseButton
-        stopButton=binding.stopButton
-        prevButton=binding.previousButton
-        nextButton=binding.nextButton
-        bitmapView=binding.BitmapView
-        artistTextView=binding.ArtrtistTextView
-        titleTextView=binding.TitleTextView
+        playButton = binding.playButton
+        pauseButton = binding.pauseButton
+        stopButton = binding.stopButton
+        prevButton = binding.previousButton
+        nextButton = binding.nextButton
+        bitmapView = binding.BitmapView
+        artistTextView = binding.ArtrtistTextView
+        titleTextView = binding.TitleTextView
 
+        trackInfoViewModel.serviceConnection?.connection?.observe(viewLifecycleOwner,
+            { connection ->
+                connection?.let {
+                    if (it) {
+                        trackInfoViewModel.playFromPosition(trackInfoViewModel.id)
+                    }
+                }
+            })
 
-
-        if(trackInfoViewModel.mediaServiceBinder!=null) {
-            trackInfoViewModel.playFromPosition(trackInfoViewModel.id!!)
-        }
-
-
-
-        prevButton?.setOnClickListener { trackInfoViewModel.previousTrack()
+        prevButton?.setOnClickListener {
+            trackInfoViewModel.previousTrack()
             buttonChangeColor(BUTTON_PREVIOUS)
         }
-        playButton?.setOnClickListener { trackInfoViewModel.playTrack()
+        playButton?.setOnClickListener {
+            trackInfoViewModel.playTrack()
             buttonChangeColor(BUTTON_PLAY)
         }
-        stopButton?.setOnClickListener { trackInfoViewModel.stopPlaying()
+        stopButton?.setOnClickListener {
+            trackInfoViewModel.stopPlaying()
             buttonChangeColor(BUTTON_STOP)
         }
-        pauseButton?.setOnClickListener { trackInfoViewModel.pausePlaying()
+        pauseButton?.setOnClickListener {
+            trackInfoViewModel.pausePlaying()
             buttonChangeColor(BUTTON_PAUSE)
         }
-        nextButton?.setOnClickListener { trackInfoViewModel.nextTrack()
-             buttonChangeColor(BUTTON_NEXT)
-
+        nextButton?.setOnClickListener {
+            trackInfoViewModel.nextTrack()
+            buttonChangeColor(BUTTON_NEXT)
         }
 
         trackInfoViewModel.mediaLiveData.observe(viewLifecycleOwner,
@@ -86,21 +85,19 @@ class TrackInfoFragment : Fragment() {
                     artistTextView?.text = it.subtitle
                 }
             })
-
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentTrackInfoBinding.inflate(inflater, container, false)
         return binding.root
     }
 
 
-
     fun buttonChangeColor(typeButton: Int) {
-       pauseButton?.setBackgroundResource(android.R.drawable.btn_default)
+        pauseButton?.setBackgroundResource(android.R.drawable.btn_default)
         playButton?.setBackgroundResource(android.R.drawable.btn_default)
         stopButton?.setBackgroundResource(android.R.drawable.btn_default)
         nextButton?.setBackgroundResource(android.R.drawable.btn_default)
@@ -114,12 +111,7 @@ class TrackInfoFragment : Fragment() {
         }
     }
 
-
-
-
-
     companion object {
-
         private const val BUTTON_PLAY = 1
         private const val BUTTON_STOP = 2
         private const val BUTTON_PAUSE = 3

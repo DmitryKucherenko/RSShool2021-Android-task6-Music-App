@@ -2,30 +2,26 @@ package com.fatalzero.rsshool2021_android_task6_music_app.ui
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.fatalzero.rsshool2021_android_task6_music_app.repository.AudioList
 import com.fatalzero.rsshool2021_android_task6_music_app.MyApplication
 import com.fatalzero.rsshool2021_android_task6_music_app.adapter.ItemClickListener
 import com.fatalzero.rsshool2021_android_task6_music_app.adapter.TrackAdapter
 import com.fatalzero.rsshool2021_android_task6_music_app.databinding.FragmentAudioListBinding
-import javax.inject.Inject
-
 
 class AudioListFragment : Fragment() {
     private var _binding: FragmentAudioListBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = requireNotNull(_binding)
     private lateinit var audioRecyclerView: RecyclerView
     private var adapter: TrackAdapter? = null
     private var itemClickListener: ItemClickListener? = null
     private val audioListViewModel: AudioListViewModel by viewModels {
-        AudioListViewModel.AudioListViewModelFactory(activity?.application!!)
+        AudioListViewModel.AudioListViewModelFactory(requireActivity().application)
     }
 
 
@@ -50,9 +46,6 @@ class AudioListFragment : Fragment() {
         audioRecyclerView.layoutManager = LinearLayoutManager(context)
         adapter = TrackAdapter(itemClickListener)
         audioRecyclerView.adapter = adapter
-
-
-
         audioListViewModel.audioListLiveData.observe(viewLifecycleOwner,
             { list ->
                 list?.let {

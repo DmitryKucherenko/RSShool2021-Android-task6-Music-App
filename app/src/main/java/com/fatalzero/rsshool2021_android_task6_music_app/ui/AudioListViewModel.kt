@@ -11,11 +11,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AudioListViewModel @Inject constructor(private val application: Application): ViewModel(){
+class AudioListViewModel @Inject constructor(application: Application): ViewModel(){
 
     @Inject
     lateinit var audioList: AudioList
-
     var audioListLiveData = MutableLiveData<List<Track>>()
 
     init{

@@ -1,5 +1,6 @@
 package com.fatalzero.rsshool2021_android_task6_music_app.ui
 
+import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -12,27 +13,21 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.fatalzero.rsshool2021_android_task6_music_app.service.AudioService
+import com.fatalzero.rsshool2021_android_task6_music_app.service.MusicServiceConnection
+import javax.inject.Inject
 
-class TrackInfoViewModel : ViewModel() {
-
-
-    var mediaServiceBinder: AudioService.MediaServiceBinder? = null
-    var activity: FragmentActivity? = null
-    var mediaController: MediaControllerCompat? = null
+class TrackInfoViewModel @Inject constructor(var application: Application) : ViewModel() {
     var callback: MediaControllerCompat.Callback? = null
-    var serviceConnection: ServiceConnection? = null
-
-
-    var id: Int? = 0
+    var serviceConnection: MusicServiceConnection? = null
+    var id: Int = 0
     var mediaLiveData = MutableLiveData<MediaDescriptionCompat>()
 
-    fun init() {
+    init {
         callback = object : MediaControllerCompat.Callback() {
             override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
                 state?.let {
-                    val playing = it.state == PlaybackStateCompat.STATE_PLAYING
-
                     when (it.state) {
                         PlaybackStateCompat.STATE_PLAYING -> callbackPlay()
                         PlaybackStateCompat.STATE_PAUSED -> callbackPause()
@@ -45,90 +40,77 @@ class TrackInfoViewModel : ViewModel() {
             }
         }
 
-            serviceConnection = object : ServiceConnection {
-
-                override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
-                    mediaServiceBinder =
-                        service as AudioService.MediaServiceBinder
-                    try {
-                        mediaController = MediaControllerCompat(
-                            activity,
-                            mediaServiceBinder?.getMediaSessionToken()!!
-                        )
-                        mediaController?.registerCallback(callback as MediaControllerCompat.Callback)
-                        callback?.onPlaybackStateChanged(mediaController?.playbackState)
-                        id?.let { playFromPosition(it) }
-
-                    } catch (e: RemoteException) {
-                        mediaController = null
-                    }
-                }
-
-                override fun onServiceDisconnected(className: ComponentName?) {
-                    mediaServiceBinder = null
-                    if (mediaController != null) {
-                        mediaController?.unregisterCallback(callback as MediaControllerCompat.Callback)
-                        mediaController = null
-                    }
-                }
-            }
-            val playerIntent = Intent(activity, AudioService::class.java)
-            activity?.bindService(
-                playerIntent,
-                serviceConnection!!,
-                Context.BIND_AUTO_CREATE
-            )
-
+        serviceConnection = MusicServiceConnection(application, callback)
+        val playerIntent = Intent(application.applicationContext, AudioService::class.java)
+        application.applicationContext.bindService(
+            playerIntent,
+            serviceConnection!!,
+            Context.BIND_AUTO_CREATE
+        )
     }
 
 
     fun nextTrack() {
-        mediaController?.transportControls?.skipToNext()
+        serviceConnection?.mediaController?.transportControls?.skipToNext()
     }
 
     fun playFromPosition(position: Int) {
-        mediaController?.transportControls?.playFromMediaId(position.toString(), null)
+        serviceConnection?.mediaController?.transportControls?.playFromMediaId(
+            position.toString(),
+            null
+        )
     }
 
     fun pausePlaying() {
-        mediaController?.transportControls?.pause()
+        serviceConnection?.mediaController?.transportControls?.pause()
     }
 
     fun stopPlaying() {
-        mediaController?.transportControls?.stop()
+        serviceConnection?.mediaController?.transportControls?.stop()
     }
 
     fun playTrack() {
-        mediaController?.transportControls?.play()
+        serviceConnection?.mediaController?.transportControls?.play()
 
     }
 
     fun previousTrack() {
-        mediaController?.transportControls?.skipToPrevious()
+        serviceConnection?.mediaController?.transportControls?.skipToPrevious()
     }
 
     fun callbackNext() {
-        mediaLiveData.value = mediaController?.metadata?.description ?: return
+        mediaLiveData.value = serviceConnection?.mediaController?.metadata?.description ?: return
     }
 
     fun callbackPause() {
-        mediaLiveData.value = mediaController?.metadata?.description ?: return
+        mediaLiveData.value = serviceConnection?.mediaController?.metadata?.description ?: return
 
     }
 
     fun callbackStop() {
-        mediaLiveData.value = mediaController?.metadata?.description ?: return
+        mediaLiveData.value = serviceConnection?.mediaController?.metadata?.description ?: return
     }
 
     fun callbackPlay() {
-        mediaLiveData.value = mediaController?.metadata?.description ?: return
+        mediaLiveData.value = serviceConnection?.mediaController?.metadata?.description ?: return
     }
 
     fun callbackPrev() {
-        mediaLiveData.value = mediaController?.metadata?.description ?: return
+        mediaLiveData.value = serviceConnection?.mediaController?.metadata?.description ?: return
     }
 
     fun callbackUnknown() {
+    }
+
+    class TrackInfoViewModelFactory(private val application: Application) :
+        ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(TrackInfoViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return TrackInfoViewModel(application) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
     }
 
 }

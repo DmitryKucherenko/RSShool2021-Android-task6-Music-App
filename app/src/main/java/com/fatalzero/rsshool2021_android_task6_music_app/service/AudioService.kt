@@ -61,32 +61,30 @@ import com.google.android.exoplayer2.util.Clock
 import java.io.File
 import javax.inject.Inject
 
-class AudioService: MediaBrowserServiceCompat() {
+class AudioService : MediaBrowserServiceCompat() {
 
 
     private val stateBuilder = PlaybackStateCompat.Builder().setActions(
         PlaybackStateCompat.ACTION_PLAY
-            or PlaybackStateCompat.ACTION_STOP
-            or PlaybackStateCompat.ACTION_PAUSE
-            or PlaybackStateCompat.ACTION_PLAY_PAUSE
-            or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-            or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-            or PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
-            or PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+                or PlaybackStateCompat.ACTION_STOP
+                or PlaybackStateCompat.ACTION_PAUSE
+                or PlaybackStateCompat.ACTION_PLAY_PAUSE
+                or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+                or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                or PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+                or PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
     )
 
     private val metadataBuilder = MediaMetadataCompat.Builder()
 
     @Inject
-    lateinit var  audioList: AudioList
+    lateinit var audioList: AudioList
 
     private var id: Int = 0
 
-    fun setPosition(position: Int){
-        audioList.currentTrackIndex=position
+    fun setPosition(position: Int) {
+        audioList.currentTrackIndex = position
     }
-
-
 
 
     private var mediaSession: MediaSessionCompat? = null
@@ -133,7 +131,7 @@ class AudioService: MediaBrowserServiceCompat() {
         mediaSession = MediaSessionCompat(this, "MediaService")
         mediaSession?.setFlags(
             MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
-                or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+                    or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
         )
         mediaSession?.setCallback(mediaSessionCallback)
 
@@ -233,7 +231,12 @@ class AudioService: MediaBrowserServiceCompat() {
                 .setIconUri(Uri.parse(track.bitmapUri))
                 .setMediaId(i.toString())
                 .build()
-            data.add(MediaBrowserCompat.MediaItem(description, MediaBrowser.MediaItem.FLAG_PLAYABLE))
+            data.add(
+                MediaBrowserCompat.MediaItem(
+                    description,
+                    MediaBrowser.MediaItem.FLAG_PLAYABLE
+                )
+            )
         }
         result.sendResult(data)
     }
@@ -325,40 +328,40 @@ class AudioService: MediaBrowserServiceCompat() {
         private var currentState = PlaybackStateCompat.STATE_STOPPED
 
         override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
-            audioList.currentTrackIndex = Integer.parseInt(mediaId?:"0")
+            audioList.currentTrackIndex = Integer.parseInt(mediaId ?: "0")
             onPlay()
         }
 
         private fun playTrack(trackByIndex: Track) {
-           // if (!exoPlayer?.playWhenReady!!) {
-                startService(Intent(applicationContext, AudioService::class.java))
-                //val track = musicCatalog.currentTrack
-                updateMetadataFromTrack(trackByIndex)
-                prepareToPlay(Uri.parse(trackByIndex.trackUri))
+            // if (!exoPlayer?.playWhenReady!!) {
+            startService(Intent(applicationContext, AudioService::class.java))
+            //val track = musicCatalog.currentTrack
+            updateMetadataFromTrack(trackByIndex)
+            prepareToPlay(Uri.parse(trackByIndex.trackUri))
 
-                if (!audioFocusRequested) {
-                    audioFocusRequested = true
-                    val audioFocusResult = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        audioManager?.requestAudioFocus(audioFocusRequest!!)!!
-                    } else {
-                        audioManager?.requestAudioFocus(
-                            this@AudioService.audioFocusChangeListener,
-                            AudioManager.STREAM_MUSIC,
-                            AudioManager.AUDIOFOCUS_GAIN
-                        )!!
-                    }
-                    if (audioFocusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                        return
-                    }
+            if (!audioFocusRequested) {
+                audioFocusRequested = true
+                val audioFocusResult = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    audioManager?.requestAudioFocus(audioFocusRequest!!)!!
+                } else {
+                    audioManager?.requestAudioFocus(
+                        this@AudioService.audioFocusChangeListener,
+                        AudioManager.STREAM_MUSIC,
+                        AudioManager.AUDIOFOCUS_GAIN
+                    )!!
                 }
+                if (audioFocusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                    return
+                }
+            }
 
-                mediaSession?.isActive = true
-                registerReceiver(
-                    becomingNoiseReceiver,
-                    IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
-                )
-                exoPlayer?.playWhenReady = true
-          //  }
+            mediaSession?.isActive = true
+            registerReceiver(
+                becomingNoiseReceiver,
+                IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+            )
+            exoPlayer?.playWhenReady = true
+            //  }
 
             updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
 
@@ -368,9 +371,6 @@ class AudioService: MediaBrowserServiceCompat() {
         override fun onPlay() {
             playTrack(audioList.currentTrack)
         }
-
-
-
 
 
         override fun onPause() {
