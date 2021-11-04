@@ -31,7 +31,6 @@ class TrackHolder(
         artist.text = track.artist
         album.text = track.album
         title.text = track.title
-        println(track.bitmapUri)
         val id = requireNotNull(track.id)
 
         try {
