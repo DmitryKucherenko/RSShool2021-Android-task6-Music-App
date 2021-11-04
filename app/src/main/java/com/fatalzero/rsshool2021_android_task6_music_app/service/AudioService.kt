@@ -29,13 +29,11 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
-import com.fatalzero.rsshool2021_android_task6_music_app.repository.AudioList
 import com.fatalzero.rsshool2021_android_task6_music_app.MyApplication
 import com.fatalzero.rsshool2021_android_task6_music_app.R
 import com.fatalzero.rsshool2021_android_task6_music_app.model.Track
+import com.fatalzero.rsshool2021_android_task6_music_app.repository.AudioList
 import com.fatalzero.rsshool2021_android_task6_music_app.ui.MainActivity
-import com.google.android.exoplayer2.DefaultLoadControl
-import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.PlaybackException
@@ -43,27 +41,16 @@ import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.Timeline
-import com.google.android.exoplayer2.analytics.AnalyticsCollector
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import com.google.android.exoplayer2.upstream.HttpDataSource
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource
-import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor
-import com.google.android.exoplayer2.upstream.cache.SimpleCache
-import com.google.android.exoplayer2.util.Clock
-import java.io.File
 import javax.inject.Inject
 
+
 class AudioService : MediaBrowserServiceCompat() {
-
-
     private val stateBuilder = PlaybackStateCompat.Builder().setActions(
         PlaybackStateCompat.ACTION_PLAY
                 or PlaybackStateCompat.ACTION_STOP
@@ -74,28 +61,22 @@ class AudioService : MediaBrowserServiceCompat() {
                 or PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
                 or PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
     )
-
     private val metadataBuilder = MediaMetadataCompat.Builder()
-
-    @Inject
-    lateinit var audioList: AudioList
-
-    private var id: Int = 0
-
-    fun setPosition(position: Int) {
-        audioList.currentTrackIndex = position
-    }
-
-
     private var mediaSession: MediaSessionCompat? = null
     private var audioManager: AudioManager? = null
     private var audioFocusRequest: AudioFocusRequest? = null
     private var audioFocusRequested = false
     private var currentAudioFocusState = AUDIO_NO_FOCUS_NO_DUCK
     private var playOnFocusGain = false
-    private var exoPlayer: SimpleExoPlayer? = null
+
+    @Inject
+    lateinit var audioList: AudioList
+    @Inject
+    lateinit var exoPlayer: SimpleExoPlayer
+
+    @Inject
+    lateinit var dataSourceFactory: CacheDataSource.Factory
     private var extractorsFactory: ExtractorsFactory? = null
-    private var dataSourceFactory: com.google.android.exoplayer2.upstream.DataSource.Factory? = null
 
 
     @SuppressLint("WrongConstant")
@@ -127,7 +108,6 @@ class AudioService : MediaBrowserServiceCompat() {
         }
 
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
         mediaSession = MediaSessionCompat(this, "MediaService")
         mediaSession?.setFlags(
             MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
@@ -154,31 +134,7 @@ class AudioService : MediaBrowserServiceCompat() {
             )
         )
 
-        // Build a HttpDataSource.Factory with cross-protocol redirects enabled.
-        val httpDataSourceFactory2: HttpDataSource.Factory =
-            DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
-
-        val cache = SimpleCache(
-            File(this.cacheDir.absolutePath + "/exoplayer"),
-            LeastRecentlyUsedCacheEvictor(CACHE_SIZE)
-        )
-
-        dataSourceFactory = CacheDataSource.Factory()
-            .setCache(cache)
-            .setUpstreamDataSourceFactory(httpDataSourceFactory2)
-            .setFlags(CacheDataSource.FLAG_BLOCK_ON_CACHE or CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
-
-        exoPlayer = SimpleExoPlayer.Builder(
-            this,
-            DefaultRenderersFactory(this),
-            DefaultTrackSelector(),
-            DefaultMediaSourceFactory(dataSourceFactory!!),
-            DefaultLoadControl(),
-            DefaultBandwidthMeter(),
-            AnalyticsCollector(Clock.DEFAULT)
-        ).build()
-
-        exoPlayer?.addListener(exoPlayerListener)
+        exoPlayer.addListener(exoPlayerListener)
 
         extractorsFactory = DefaultExtractorsFactory()
     }
@@ -191,7 +147,7 @@ class AudioService : MediaBrowserServiceCompat() {
     override fun onDestroy() {
         super.onDestroy()
         mediaSession?.release()
-        exoPlayer?.release()
+        exoPlayer.release()
     }
 
     override fun onBind(intent: Intent?): IBinder {
@@ -209,7 +165,7 @@ class AudioService : MediaBrowserServiceCompat() {
         clientPackageName: String,
         clientUid: Int,
         rootHints: Bundle?
-    ): BrowserRoot? {
+    ): BrowserRoot {
         return BrowserRoot("Root", null)
     }
 
@@ -223,7 +179,6 @@ class AudioService : MediaBrowserServiceCompat() {
 
         for ((i, track) in audioList.getTrackCatalog().withIndex()) {
             Log.i("TAG", "track = ${track.title}")
-            //val track = musicCatalog.getTrackByIndex(i)
             val description = descriptionBuilder
                 .setDescription(track.artist)
                 .setTitle(track.title)
@@ -279,14 +234,11 @@ class AudioService : MediaBrowserServiceCompat() {
             }
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
                 currentAudioFocusState = AUDIO_NO_FOCUS_NO_DUCK
-                playOnFocusGain = exoPlayer != null && exoPlayer?.playWhenReady!!
+                playOnFocusGain = exoPlayer.playWhenReady
             }
             AudioManager.AUDIOFOCUS_LOSS -> currentAudioFocusState = AUDIO_NO_FOCUS_NO_DUCK
         }
-
-        if (exoPlayer != null) {
-            configurePlayerState()
-        }
+        configurePlayerState()
     }
 
     private fun configurePlayerState() {
@@ -298,21 +250,21 @@ class AudioService : MediaBrowserServiceCompat() {
                 IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
             )
             if (currentAudioFocusState == AUDIO_NO_FOCUS_CAN_DUCK) {
-                exoPlayer?.volume = VOLUME_DUCK
+                exoPlayer.volume = VOLUME_DUCK
             } else {
-                exoPlayer?.volume = VOLUME_NORMAL
+                exoPlayer.volume = VOLUME_NORMAL
             }
 
-            // If we were playing when we lost focus, we need to resume playing.
+
             if (playOnFocusGain) {
-                exoPlayer?.playWhenReady = true
+                exoPlayer.playWhenReady = true
                 playOnFocusGain = false
             }
         }
     }
 
     private fun playerPause() {
-        exoPlayer?.let {
+        exoPlayer.let {
             it.playWhenReady = false
             try {
                 unregisterReceiver(becomingNoiseReceiver)
@@ -333,9 +285,7 @@ class AudioService : MediaBrowserServiceCompat() {
         }
 
         private fun playTrack(trackByIndex: Track) {
-            // if (!exoPlayer?.playWhenReady!!) {
             startService(Intent(applicationContext, AudioService::class.java))
-            //val track = musicCatalog.currentTrack
             updateMetadataFromTrack(trackByIndex)
             prepareToPlay(Uri.parse(trackByIndex.trackUri))
 
@@ -360,11 +310,8 @@ class AudioService : MediaBrowserServiceCompat() {
                 becomingNoiseReceiver,
                 IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
             )
-            exoPlayer?.playWhenReady = true
-            //  }
-
+            exoPlayer.playWhenReady = true
             updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
-
             refreshNotificationAndForegroundStatus(currentState)
         }
 
@@ -374,8 +321,8 @@ class AudioService : MediaBrowserServiceCompat() {
 
 
         override fun onPause() {
-            if (exoPlayer?.playWhenReady!!) {
-                exoPlayer?.playWhenReady = false
+            if (exoPlayer.playWhenReady) {
+                exoPlayer.playWhenReady = false
                 unregisterReceiver(becomingNoiseReceiver)
             }
 
@@ -385,8 +332,8 @@ class AudioService : MediaBrowserServiceCompat() {
         }
 
         override fun onStop() {
-            if (exoPlayer?.playWhenReady!!) {
-                exoPlayer?.playWhenReady = false
+            if (exoPlayer.playWhenReady) {
+                exoPlayer.playWhenReady = false
                 unregisterReceiver(becomingNoiseReceiver)
             }
 
@@ -401,18 +348,14 @@ class AudioService : MediaBrowserServiceCompat() {
             }
 
             mediaSession?.isActive = false
-
             updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
-
             refreshNotificationAndForegroundStatus(currentState)
-
             stopSelf()
         }
 
         override fun onSkipToNext() {
             val track = audioList.next()
             updateMetadataFromTrack(track)
-
             mediaSession?.setPlaybackState(
                 stateBuilder.setState(
                     PlaybackStateCompat.STATE_SKIPPING_TO_NEXT,
@@ -424,29 +367,24 @@ class AudioService : MediaBrowserServiceCompat() {
 
             prepareToPlay(Uri.parse(track.trackUri))
 
-            if (exoPlayer?.playWhenReady!!) {
+            if (exoPlayer.playWhenReady) {
                 updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
             } else {
                 updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
             }
-
             refreshNotificationAndForegroundStatus(currentState)
         }
 
         override fun onSkipToPrevious() {
             val track = audioList.previous()
             updateMetadataFromTrack(track)
-
             updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS)
-
             prepareToPlay(Uri.parse(track.trackUri))
-
-            if (exoPlayer?.playWhenReady!!) {
+            if (exoPlayer.playWhenReady) {
                 updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
             } else {
                 updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
             }
-
             refreshNotificationAndForegroundStatus(currentState)
         }
 
@@ -467,7 +405,7 @@ class AudioService : MediaBrowserServiceCompat() {
                 val mediaSource =
                     ProgressiveMediaSource.Factory(dataSourceFactory!!, extractorsFactory!!)
                         .createMediaSource(MediaItem.fromUri(uri))
-                exoPlayer?.apply {
+                exoPlayer.apply {
                     setMediaSource(mediaSource)
                     prepare()
                 }
@@ -480,6 +418,7 @@ class AudioService : MediaBrowserServiceCompat() {
                     MediaMetadataCompat.METADATA_KEY_ART,
                     audioList.bitmaps[track.bitmapUri]
                 )
+                putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID,audioList.currentTrackIndex.toString())
                 putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.title)
                 putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.artist)
                 putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)
@@ -512,8 +451,6 @@ class AudioService : MediaBrowserServiceCompat() {
             Log.d("TAG", ">>>>>>>>>>>>> onMediaButtonEvent ${mediaButtonEvent?.action}")
             return super.onMediaButtonEvent(mediaButtonEvent)
         }
-
-
     }
 
     val becomingNoiseReceiver = object : BroadcastReceiver() {
@@ -634,7 +571,6 @@ class AudioService : MediaBrowserServiceCompat() {
     }
 
     companion object {
-
         private const val NOTIFICATION_ID = 33
         private const val NOTIFICATION_CHANNEL_ID = "media_channel"
         private const val AUDIO_NO_FOCUS_NO_DUCK = 0
@@ -642,6 +578,5 @@ class AudioService : MediaBrowserServiceCompat() {
         private const val AUDIO_FOCUSED = 2
         private const val VOLUME_DUCK = 0.2F
         private const val VOLUME_NORMAL = 1.0F
-        private const val CACHE_SIZE = 1024 * 1024 * 100L //100Mb
     }
 }

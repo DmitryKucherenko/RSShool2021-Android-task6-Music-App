@@ -10,5 +10,4 @@ import javax.inject.Singleton
 interface AudioListModule {
     @Singleton
     fun getAudioList(context: Context): AudioList
-
 }

@@ -11,8 +11,6 @@ import com.fatalzero.rsshool2021_android_task6_music_app.adapter.ItemClickListen
 private const val ID = "id"
 
 class MainActivity : AppCompatActivity(), ItemClickListener {
-
-
     private var navController: NavController? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

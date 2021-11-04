@@ -1,16 +1,11 @@
 package com.fatalzero.rsshool2021_android_task6_music_app.ui
 
 import android.app.Application
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
-import android.os.IBinder
-import android.os.RemoteException
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -21,7 +16,7 @@ import javax.inject.Inject
 class TrackInfoViewModel @Inject constructor(var application: Application) : ViewModel() {
     var callback: MediaControllerCompat.Callback? = null
     var serviceConnection: MusicServiceConnection? = null
-    var id: Int = 0
+    var id: Int = -1
     var mediaLiveData = MutableLiveData<MediaDescriptionCompat>()
 
     init {

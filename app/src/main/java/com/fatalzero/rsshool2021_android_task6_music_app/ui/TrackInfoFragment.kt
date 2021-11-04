@@ -33,7 +33,7 @@ class TrackInfoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        trackInfoViewModel.id = arguments?.getInt(ID) ?: 0
+        if(trackInfoViewModel.id==-1)trackInfoViewModel.id = arguments?.getInt(ID) ?: 0
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -83,6 +83,7 @@ class TrackInfoFragment : Fragment() {
                     bitmapView?.setImageBitmap(it.iconBitmap)
                     titleTextView?.text = it.title
                     artistTextView?.text = it.subtitle
+                    trackInfoViewModel.id=it.mediaId?.toInt()?:0
                 }
             })
     }

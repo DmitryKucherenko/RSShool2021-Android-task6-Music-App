@@ -12,7 +12,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import javax.inject.Inject
 
-class MusicServiceConnection(var application: Application, var callback: MediaControllerCompat.Callback?): ServiceConnection  {
+class MusicServiceConnection (var application: Application, var callback: MediaControllerCompat.Callback?): ServiceConnection  {
 
     var mediaServiceBinder: AudioService.MediaServiceBinder? = null
     var mediaController: MediaControllerCompat? = null
@@ -20,7 +20,6 @@ class MusicServiceConnection(var application: Application, var callback: MediaCo
 
 
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
-
             mediaServiceBinder =
                 service as AudioService.MediaServiceBinder
             try {

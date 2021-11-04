@@ -6,9 +6,10 @@ import com.fatalzero.rsshool2021_android_task6_music_app.ui.AudioListFragment
 import com.fatalzero.rsshool2021_android_task6_music_app.ui.AudioListViewModel
 import dagger.BindsInstance
 import dagger.Component
+import javax.inject.Singleton
 
-
-@Component(modules = [AudioListModule::class])
+@Singleton
+@Component(modules = [AudioListModule::class,AudioServiceModule::class])
 interface AppComponent {
 
     @Component.Factory
