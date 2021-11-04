@@ -33,7 +33,16 @@ class TrackInfoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(trackInfoViewModel.id==-1)trackInfoViewModel.id = arguments?.getInt(ID) ?: 0
+        if(savedInstanceState!=null)trackInfoViewModel.id= savedInstanceState.getInt(ID)else
+        trackInfoViewModel.id = arguments?.getInt(ID) ?: 0
+         println(arguments?.getInt(ID) ?: 0)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(ID,trackInfoViewModel.serviceConnection?.mediaController?.metadata?.description?.mediaId?.toInt()?:0)
+     //   arguments?.putInt(ID,trackInfoViewModel.id)
+        println("save instance vork!")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -47,14 +56,22 @@ class TrackInfoFragment : Fragment() {
         artistTextView = binding.ArtrtistTextView
         titleTextView = binding.TitleTextView
 
+//        if(trackInfoViewModel.id != -1) {
+//            trackInfoViewModel.playFromPosition(trackInfoViewModel.id)
+//
+//        }
+
         trackInfoViewModel.serviceConnection?.connection?.observe(viewLifecycleOwner,
             { connection ->
                 connection?.let {
                     if (it) {
                         trackInfoViewModel.playFromPosition(trackInfoViewModel.id)
+                        println("--------------${trackInfoViewModel.id}----------------------------")
                     }
                 }
             })
+
+
 
         prevButton?.setOnClickListener {
             trackInfoViewModel.previousTrack()
@@ -83,7 +100,8 @@ class TrackInfoFragment : Fragment() {
                     bitmapView?.setImageBitmap(it.iconBitmap)
                     titleTextView?.text = it.title
                     artistTextView?.text = it.subtitle
-                    trackInfoViewModel.id=it.mediaId?.toInt()?:0
+                  //  trackInfoViewModel.id=it.mediaId?.toInt()?:0
+                   // println("trackInfoViewModel")
                 }
             })
     }
