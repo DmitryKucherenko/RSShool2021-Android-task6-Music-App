@@ -13,6 +13,8 @@ import androidx.fragment.app.viewModels
 import com.fatalzero.rsshool2021_android_task6_music_app.databinding.FragmentTrackInfoBinding
 
 private const val ID = "id"
+private const val PLAY = "play"
+private const val TYPE_BUTTON = "type_button"
 
 class TrackInfoFragment : Fragment() {
     private var _binding: FragmentTrackInfoBinding? = null
@@ -26,6 +28,8 @@ class TrackInfoFragment : Fragment() {
     var artistTextView: TextView? = null
     var bitmapView: ImageView? = null
     var titleTextView: TextView? = null
+    var play: Boolean = false
+    var typeButton:Int=0
 
     private val trackInfoViewModel: TrackInfoViewModel by viewModels {
         TrackInfoViewModel.TrackInfoViewModelFactory(requireActivity().application)
@@ -33,8 +37,15 @@ class TrackInfoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState != null) trackInfoViewModel.id = savedInstanceState.getInt(ID) else
+        if (savedInstanceState != null) {
+            trackInfoViewModel.id = savedInstanceState.getInt(ID)
+            play = savedInstanceState.getBoolean(PLAY)
+            typeButton = savedInstanceState.getInt(TYPE_BUTTON)
+
+        } else {
             trackInfoViewModel.id = arguments?.getInt(ID) ?: 0
+            play = true
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -43,6 +54,11 @@ class TrackInfoFragment : Fragment() {
             ID,
             trackInfoViewModel.mediaLiveData.value?.mediaId?.toInt() ?: 0
         )
+        outState.putBoolean(
+            PLAY,
+            false
+        )
+        outState.putInt(TYPE_BUTTON,typeButton)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -59,31 +75,32 @@ class TrackInfoFragment : Fragment() {
         trackInfoViewModel.serviceConnection?.connection?.observe(viewLifecycleOwner,
             { connection ->
                 connection?.let {
-                    if (it) {
+                    if (it && play) {
                         trackInfoViewModel.playFromPosition(trackInfoViewModel.id)
+                        typeButton= BUTTON_PLAY
                     }
                 }
             })
 
         prevButton?.setOnClickListener {
             trackInfoViewModel.previousTrack()
-            buttonChangeColor(BUTTON_PREVIOUS)
+            typeButton=BUTTON_PREVIOUS
         }
         playButton?.setOnClickListener {
             trackInfoViewModel.playTrack()
-            buttonChangeColor(BUTTON_PLAY)
+            typeButton=(BUTTON_PLAY)
         }
         stopButton?.setOnClickListener {
             trackInfoViewModel.stopPlaying()
-            buttonChangeColor(BUTTON_STOP)
+            typeButton=BUTTON_STOP
         }
         pauseButton?.setOnClickListener {
             trackInfoViewModel.pausePlaying()
-            buttonChangeColor(BUTTON_PAUSE)
+            typeButton=BUTTON_PAUSE
         }
         nextButton?.setOnClickListener {
             trackInfoViewModel.nextTrack()
-            buttonChangeColor(BUTTON_NEXT)
+            typeButton=BUTTON_NEXT
         }
 
         trackInfoViewModel.mediaLiveData.observe(viewLifecycleOwner,
@@ -92,6 +109,7 @@ class TrackInfoFragment : Fragment() {
                     bitmapView?.setImageBitmap(it.iconBitmap)
                     titleTextView?.text = it.title
                     artistTextView?.text = it.subtitle
+                    buttonChangeColor(typeButton)
                 }
             })
     }
@@ -106,6 +124,7 @@ class TrackInfoFragment : Fragment() {
 
 
     fun buttonChangeColor(typeButton: Int) {
+        this.typeButton = typeButton
         pauseButton?.setBackgroundResource(android.R.drawable.btn_default)
         playButton?.setBackgroundResource(android.R.drawable.btn_default)
         stopButton?.setBackgroundResource(android.R.drawable.btn_default)
