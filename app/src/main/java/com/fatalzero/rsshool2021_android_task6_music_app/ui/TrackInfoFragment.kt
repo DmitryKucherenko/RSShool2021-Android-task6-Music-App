@@ -20,16 +20,16 @@ class TrackInfoFragment : Fragment() {
     private var _binding: FragmentTrackInfoBinding? = null
     private val binding get() = requireNotNull(_binding)
 
-    var playButton: ImageButton? = null
-    var pauseButton: ImageButton? = null
-    var stopButton: ImageButton? = null
-    var prevButton: ImageButton? = null
-    var nextButton: ImageButton? = null
-    var artistTextView: TextView? = null
-    var bitmapView: ImageView? = null
-    var titleTextView: TextView? = null
-    var play: Boolean = false
-    var typeButton:Int=0
+    private var playButton: ImageButton? = null
+    private var pauseButton: ImageButton? = null
+    private var stopButton: ImageButton? = null
+    private var prevButton: ImageButton? = null
+    private var nextButton: ImageButton? = null
+    private var artistTextView: TextView? = null
+    private var bitmapView: ImageView? = null
+    private var titleTextView: TextView? = null
+    private var play: Boolean = false
+    private var typeButton:Int=0
 
     private val trackInfoViewModel: TrackInfoViewModel by viewModels {
         TrackInfoViewModel.TrackInfoViewModelFactory(requireActivity().application)
@@ -122,8 +122,7 @@ class TrackInfoFragment : Fragment() {
         return binding.root
     }
 
-
-    fun buttonChangeColor(typeButton: Int) {
+    private fun buttonChangeColor(typeButton: Int) {
         this.typeButton = typeButton
         pauseButton?.setBackgroundResource(android.R.drawable.btn_default)
         playButton?.setBackgroundResource(android.R.drawable.btn_default)

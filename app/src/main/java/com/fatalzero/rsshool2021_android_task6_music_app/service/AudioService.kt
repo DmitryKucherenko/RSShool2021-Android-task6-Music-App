@@ -71,6 +71,7 @@ class AudioService : MediaBrowserServiceCompat() {
 
     @Inject
     lateinit var audioList: AudioList
+
     @Inject
     lateinit var exoPlayer: SimpleExoPlayer
 
@@ -224,6 +225,8 @@ class AudioService : MediaBrowserServiceCompat() {
 
         override fun onTimelineChanged(timeline: Timeline, reason: Int) {
         }
+
+
     }
 
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
@@ -292,13 +295,13 @@ class AudioService : MediaBrowserServiceCompat() {
             if (!audioFocusRequested) {
                 audioFocusRequested = true
                 val audioFocusResult = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    audioManager?.requestAudioFocus(audioFocusRequest!!)!!
+                    audioFocusRequest?.let { audioManager?.requestAudioFocus(it) }
                 } else {
                     audioManager?.requestAudioFocus(
                         this@AudioService.audioFocusChangeListener,
                         AudioManager.STREAM_MUSIC,
                         AudioManager.AUDIOFOCUS_GAIN
-                    )!!
+                    )
                 }
                 if (audioFocusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                     return
@@ -403,10 +406,14 @@ class AudioService : MediaBrowserServiceCompat() {
             if (uri != currentUri) {
                 currentUri = uri
                 val mediaSource =
-                    ProgressiveMediaSource.Factory(dataSourceFactory!!, extractorsFactory!!)
-                        .createMediaSource(MediaItem.fromUri(uri))
+                    extractorsFactory?.let {
+                        ProgressiveMediaSource.Factory(dataSourceFactory, it)
+                            .createMediaSource(MediaItem.fromUri(uri))
+                    }
                 exoPlayer.apply {
-                    setMediaSource(mediaSource)
+                    if (mediaSource != null) {
+                        setMediaSource(mediaSource)
+                    }
                     prepare()
                 }
             }
@@ -418,7 +425,10 @@ class AudioService : MediaBrowserServiceCompat() {
                     MediaMetadataCompat.METADATA_KEY_ART,
                     audioList.bitmaps[track.bitmapUri]
                 )
-                putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID,audioList.currentTrackIndex.toString())
+                putString(
+                    MediaMetadataCompat.METADATA_KEY_MEDIA_ID,
+                    audioList.currentTrackIndex.toString()
+                )
                 putString(MediaMetadataCompat.METADATA_KEY_TITLE, track.title)
                 putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.artist)
                 putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)

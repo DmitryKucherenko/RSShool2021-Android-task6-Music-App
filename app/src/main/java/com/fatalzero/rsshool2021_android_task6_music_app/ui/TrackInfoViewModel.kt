@@ -14,10 +14,11 @@ import com.fatalzero.rsshool2021_android_task6_music_app.service.MusicServiceCon
 import javax.inject.Inject
 
 class TrackInfoViewModel @Inject constructor(var application: Application) : ViewModel() {
-    var callback: MediaControllerCompat.Callback? = null
+    private var callback: MediaControllerCompat.Callback? = null
     var serviceConnection: MusicServiceConnection? = null
     var id: Int = -1
     var mediaLiveData = MutableLiveData<MediaDescriptionCompat>()
+
 
     init {
         callback = object : MediaControllerCompat.Callback() {
@@ -58,6 +59,7 @@ class TrackInfoViewModel @Inject constructor(var application: Application) : Vie
 
     fun pausePlaying() {
         serviceConnection?.mediaController?.transportControls?.pause()
+
     }
 
     fun stopPlaying() {
@@ -66,8 +68,7 @@ class TrackInfoViewModel @Inject constructor(var application: Application) : Vie
 
     fun playTrack() {
         serviceConnection?.mediaController?.transportControls?.play()
-
-    }
+      }
 
     fun previousTrack() {
         serviceConnection?.mediaController?.transportControls?.skipToPrevious()
