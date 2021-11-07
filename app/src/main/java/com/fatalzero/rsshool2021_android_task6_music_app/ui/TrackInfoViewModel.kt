@@ -9,8 +9,12 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.fatalzero.rsshool2021_android_task6_music_app.service.AudioService
 import com.fatalzero.rsshool2021_android_task6_music_app.service.MusicServiceConnection
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class TrackInfoViewModel @Inject constructor(var application: Application) : ViewModel() {
@@ -18,11 +22,15 @@ class TrackInfoViewModel @Inject constructor(var application: Application) : Vie
     var serviceConnection: MusicServiceConnection? = null
     var id: Int = -1
     var mediaLiveData = MutableLiveData<MediaDescriptionCompat>()
-
+    var updateProgressTask: Job? = null
+var trackProgress = MutableLiveData<Long>(0)
 
     init {
         callback = object : MediaControllerCompat.Callback() {
+
+
             override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+
                 state?.let {
                     when (it.state) {
                         PlaybackStateCompat.STATE_PLAYING -> callbackPlay()
@@ -48,6 +56,7 @@ class TrackInfoViewModel @Inject constructor(var application: Application) : Vie
 
     fun nextTrack() {
         serviceConnection?.mediaController?.transportControls?.skipToNext()
+        updateSeekBar()
     }
 
     fun playFromPosition(position: Int) {
@@ -55,27 +64,54 @@ class TrackInfoViewModel @Inject constructor(var application: Application) : Vie
             position.toString(),
             null
         )
+        updateSeekBar()
+    }
+
+    fun updateSeekBar(){
+        updateProgressTask = viewModelScope.launch{
+            while(true) {
+                delay(1000)
+                trackProgress.postValue(  serviceConnection?.mediaController?.playbackState?.position)
+            }
+        }
+    }
+
+    fun stopUdateSeekBar(){
+        updateProgressTask?.cancel()
+        updateProgressTask?.invokeOnCompletion {     trackProgress.postValue(0) }
+    }
+
+
+    fun pauseUpdateSeekBar(){
+        updateProgressTask?.cancel()
+
     }
 
     fun pausePlaying() {
         serviceConnection?.mediaController?.transportControls?.pause()
+        pauseUpdateSeekBar()
+
 
     }
 
     fun stopPlaying() {
         serviceConnection?.mediaController?.transportControls?.stop()
+        stopUdateSeekBar()
     }
 
     fun playTrack() {
         serviceConnection?.mediaController?.transportControls?.play()
+        updateSeekBar()
       }
 
     fun previousTrack() {
         serviceConnection?.mediaController?.transportControls?.skipToPrevious()
+        updateSeekBar()
     }
 
     fun callbackNext() {
         mediaLiveData.value = serviceConnection?.mediaController?.metadata?.description ?: return
+
     }
 
     fun callbackPause() {

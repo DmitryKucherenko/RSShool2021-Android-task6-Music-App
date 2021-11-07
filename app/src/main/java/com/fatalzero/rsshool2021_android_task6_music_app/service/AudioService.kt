@@ -226,7 +226,9 @@ class AudioService : MediaBrowserServiceCompat() {
         override fun onTimelineChanged(timeline: Timeline, reason: Int) {
         }
 
-
+        override fun onSeekProcessed() {
+            super.onSeekProcessed()
+        }
     }
 
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
@@ -353,6 +355,9 @@ class AudioService : MediaBrowserServiceCompat() {
             mediaSession?.isActive = false
             updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
             refreshNotificationAndForegroundStatus(currentState)
+            exoPlayer.seekTo(0);
+         //   exoPlayer?.stop()
+
             stopSelf()
         }
 
@@ -395,7 +400,7 @@ class AudioService : MediaBrowserServiceCompat() {
             mediaSession?.setPlaybackState(
                 stateBuilder.setState(
                     playbackState,
-                    PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
+                   exoPlayer.currentPosition.toLong()?: PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
                     1F
                 ).build()
             )
@@ -433,7 +438,8 @@ class AudioService : MediaBrowserServiceCompat() {
                 putString(MediaMetadataCompat.METADATA_KEY_ALBUM, track.artist)
                 putString(MediaMetadataCompat.METADATA_KEY_ARTIST, track.artist)
                 putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, track.bitmapUri)
-                putLong(MediaMetadataCompat.METADATA_KEY_DURATION, track.duration!!)
+
+                putLong(MediaMetadataCompat.METADATA_KEY_DURATION, track.duration?:0)
             }
             mediaSession?.setMetadata(metadataBuilder.build())
         }
@@ -486,6 +492,7 @@ class AudioService : MediaBrowserServiceCompat() {
             }
             else -> stopForeground(true)
         }
+
     }
 
     private fun getNotification(playbackState: Int): Notification {

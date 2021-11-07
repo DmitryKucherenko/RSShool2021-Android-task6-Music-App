@@ -17,6 +17,7 @@ class MusicServiceConnection (var application: Application, var callback: MediaC
     var mediaServiceBinder: AudioService.MediaServiceBinder? = null
     var mediaController: MediaControllerCompat? = null
     var connection: MutableLiveData<Boolean> = MutableLiveData<Boolean>(false)
+    var progressPosition: MutableLiveData<Long> = MutableLiveData<Long>(0)
 
 
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
@@ -27,10 +28,14 @@ class MusicServiceConnection (var application: Application, var callback: MediaC
                 mediaController = MediaControllerCompat(
                     application.applicationContext,
                     mediaServiceBinder?.getMediaSessionToken()!!
+
                 )
                 mediaController?.registerCallback(callback as MediaControllerCompat.Callback)
                 callback?.onPlaybackStateChanged(mediaController?.playbackState)
+
+
                 connection.postValue(true)
+
 
             } catch (e: RemoteException) {
                 mediaController = null

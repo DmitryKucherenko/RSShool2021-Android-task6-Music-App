@@ -2,11 +2,13 @@ package com.fatalzero.rsshool2021_android_task6_music_app.ui
 
 import android.graphics.Color
 import android.os.Bundle
+import android.support.v4.media.MediaMetadataCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,12 +17,14 @@ import com.fatalzero.rsshool2021_android_task6_music_app.databinding.FragmentTra
 private const val ID = "id"
 private const val PLAY = "play"
 private const val TYPE_BUTTON = "type_button"
+private const val TRACK_PROGRESS = "progress_position"
 
 class TrackInfoFragment : Fragment() {
     private var _binding: FragmentTrackInfoBinding? = null
     private val binding get() = requireNotNull(_binding)
 
     private var playButton: ImageButton? = null
+    private var seekBar: SeekBar? = null
     private var pauseButton: ImageButton? = null
     private var stopButton: ImageButton? = null
     private var prevButton: ImageButton? = null
@@ -41,6 +45,7 @@ class TrackInfoFragment : Fragment() {
             trackInfoViewModel.id = savedInstanceState.getInt(ID)
             play = savedInstanceState.getBoolean(PLAY)
             typeButton = savedInstanceState.getInt(TYPE_BUTTON)
+           trackInfoViewModel.trackProgress.value= savedInstanceState.getLong(TRACK_PROGRESS)
 
         } else {
             trackInfoViewModel.id = arguments?.getInt(ID) ?: 0
@@ -59,6 +64,7 @@ class TrackInfoFragment : Fragment() {
             false
         )
         outState.putInt(TYPE_BUTTON,typeButton)
+        outState.putLong(TRACK_PROGRESS,trackInfoViewModel.trackProgress.value?:0)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -71,36 +77,38 @@ class TrackInfoFragment : Fragment() {
         bitmapView = binding.BitmapView
         artistTextView = binding.ArtrtistTextView
         titleTextView = binding.TitleTextView
+        seekBar = binding.seekBar
 
         trackInfoViewModel.serviceConnection?.connection?.observe(viewLifecycleOwner,
             { connection ->
                 connection?.let {
                     if (it && play) {
                         trackInfoViewModel.playFromPosition(trackInfoViewModel.id)
-                        typeButton= BUTTON_PLAY
+                        typeButton = BUTTON_PLAY
                     }
                 }
             })
 
         prevButton?.setOnClickListener {
             trackInfoViewModel.previousTrack()
-            typeButton=BUTTON_PREVIOUS
+            typeButton = BUTTON_PREVIOUS
         }
         playButton?.setOnClickListener {
             trackInfoViewModel.playTrack()
-            typeButton=(BUTTON_PLAY)
+            typeButton = (BUTTON_PLAY)
         }
         stopButton?.setOnClickListener {
             trackInfoViewModel.stopPlaying()
-            typeButton=BUTTON_STOP
+            typeButton = BUTTON_STOP
+
         }
         pauseButton?.setOnClickListener {
             trackInfoViewModel.pausePlaying()
-            typeButton=BUTTON_PAUSE
+            typeButton = BUTTON_PAUSE
         }
         nextButton?.setOnClickListener {
             trackInfoViewModel.nextTrack()
-            typeButton=BUTTON_NEXT
+            typeButton = BUTTON_NEXT
         }
 
         trackInfoViewModel.mediaLiveData.observe(viewLifecycleOwner,
@@ -109,8 +117,16 @@ class TrackInfoFragment : Fragment() {
                     bitmapView?.setImageBitmap(it.iconBitmap)
                     titleTextView?.text = it.title
                     artistTextView?.text = it.subtitle
+
+                    seekBar?.max =  trackInfoViewModel.serviceConnection?.mediaController?.metadata?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)?.toInt()?:0
                     buttonChangeColor(typeButton)
                 }
+            })
+
+        trackInfoViewModel.trackProgress.observe(viewLifecycleOwner,
+            {
+                seekBar?.progress = it.toInt()
+
             })
     }
 
