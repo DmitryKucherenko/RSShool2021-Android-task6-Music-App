@@ -29,6 +29,7 @@ var trackProgress = MutableLiveData<Long>(0)
         callback = object : MediaControllerCompat.Callback() {
 
 
+
             override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
 
                 state?.let {
@@ -45,18 +46,24 @@ var trackProgress = MutableLiveData<Long>(0)
         }
 
         serviceConnection = MusicServiceConnection(application, callback)
-        val playerIntent = Intent(application.applicationContext, AudioService::class.java)
-        application.applicationContext.bindService(
-            playerIntent,
-            serviceConnection!!,
-            Context.BIND_AUTO_CREATE
-        )
+        serviceConnection?.let {
+            val playerIntent = Intent(application.applicationContext, AudioService::class.java)
+            application.applicationContext.bindService(
+                playerIntent,
+                it,
+                Context.BIND_AUTO_CREATE
+            )
+        }
     }
 
 
     fun nextTrack() {
         serviceConnection?.mediaController?.transportControls?.skipToNext()
         updateSeekBar()
+    }
+
+    fun seekTo(seekPosition: Long){
+        serviceConnection?.mediaController?.transportControls?.seekTo(seekPosition)
     }
 
     fun playFromPosition(position: Int) {

@@ -325,6 +325,7 @@ class AudioService : MediaBrowserServiceCompat() {
         }
 
 
+
         override fun onPause() {
             if (exoPlayer.playWhenReady) {
                 exoPlayer.playWhenReady = false
@@ -381,6 +382,11 @@ class AudioService : MediaBrowserServiceCompat() {
                 updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
             }
             refreshNotificationAndForegroundStatus(currentState)
+        }
+
+        override fun onSeekTo(pos: Long) {
+            super.onSeekTo(pos)
+            exoPlayer.seekTo(pos)
         }
 
         override fun onSkipToPrevious() {

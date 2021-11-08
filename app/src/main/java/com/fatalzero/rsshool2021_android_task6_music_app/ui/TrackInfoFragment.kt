@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -128,6 +129,18 @@ class TrackInfoFragment : Fragment() {
                 seekBar?.progress = it.toInt()
 
             })
+        seekBar?.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+
+            }
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                trackInfoViewModel.seekTo(seekBar.progress.toLong())
+            }
+        })
     }
 
     override fun onCreateView(
